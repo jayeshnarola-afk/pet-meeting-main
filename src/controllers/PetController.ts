@@ -58,7 +58,11 @@ export class PetController {
           .map(breed => ({
             id: breed.id,
             name: breed.name,
+<<<<<<< HEAD
             isStatic: breed.userId ? false : true,
+=======
+            isStatic: type.userId ? false : true,
+>>>>>>> 9a6b58d6a3e323d5fc2de8a7e02fc732437e83f0
           }))
       }));
 
