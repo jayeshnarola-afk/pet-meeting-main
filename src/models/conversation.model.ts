@@ -491,7 +491,7 @@ export async function sendMediaMessage(
                 }
 
                 // Debug: Check room membership after auto-join
-                const room = io.sockets.adapter.rooms.get(`room_${conversation_id}`);
+                const room: any = io.sockets.adapter.rooms.get(`room_${conversation_id}`);
                 console.log(`📊 Room room_${conversation_id} has ${room?.size || 0} connected users`);
 
                 // Emit receive_message event
@@ -509,7 +509,7 @@ export async function sendMediaMessage(
                 await Promise.all(
                     result.receiver.map(async (receiver: any) => {
                         const response = formatMessage(result);
-                        const personalRoom = io.sockets.adapter.rooms.get(`personal_data_${receiver.user_id}`);
+                        const personalRoom: any = io.sockets.adapter.rooms.get(`personal_data_${receiver.user_id}`);
                         console.log(`📊 Personal room personal_data_${receiver.user_id} has ${personalRoom?.size || 0} connected users`);
                         console.log(`📤 Emitting new_message_received to user ${receiver.user_id}`);
                         io.to(`personal_data_${receiver.user_id}`).emit("new_message_received", {

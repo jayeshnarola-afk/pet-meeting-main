@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Server, Socket } from "socket.io";
 import { AppDataSource } from "../../config/database";
 import { User } from "../entities/User";
