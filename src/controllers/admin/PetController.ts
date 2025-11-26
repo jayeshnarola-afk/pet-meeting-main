@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { AppDataSource } from '../../config/database';
-import { Pet } from '../entities/Pet';
-import { PetType } from '../entities/PetType';
-import { PetBreed } from '../entities/PetBreed';
-import { PetPersonality } from '../entities/PetPersonality';
-import { PetInteraction } from '../entities/PetInteraction';
-import { Match } from '../entities/Match';
-import { User } from '../entities/User';
+import { AppDataSource } from '../../../config/database';
+import { Pet } from '../../entities/Pet';
+import { PetType } from '../../entities/PetType';
+import { PetBreed } from '../../entities/PetBreed';
+import { PetPersonality } from '../../entities/PetPersonality';
+import { PetInteraction } from '../../entities/PetInteraction';
+import { Match } from '../../entities/Match';
+import { User } from '../../entities/User';
 import { Not, In } from 'typeorm';
 import { IsNull } from "typeorm";
 
@@ -103,8 +103,8 @@ export class PetController {
         res.json({
           message: 'save successfully',
           Data: {
-            typeId: petType.id,   // 👈 renamed key
-            ...rest,           // बाकी सब properties same
+            typeId: petType.id,
+            ...rest,
           }
         });
 
@@ -213,18 +213,58 @@ export class PetController {
 
 
 
-
-  // Get all user's pets
+  // Get all pets with   
   static async getUserPets(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.id;
+      // const userId = (req as any).user.id; 
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const skip = (page - 1) * limit;
+      const {
+        search,
+        typeId,
+        breedId,
+        personalityId,
+        ownerId,
+        lookingFor,
+        health,
+        ageMin,
+        ageMax
+      } = req.query;
 
+      const query = petRepository
+        .createQueryBuilder("pet")
+        .leftJoinAndSelect("pet.type", "type")
+        .leftJoinAndSelect("pet.breed", "breed")
+        .leftJoinAndSelect("pet.personalities", "personalities")
+        .leftJoinAndSelect("pet.owner", "owner")
+        .orderBy("pet.id", "DESC")
+        .skip(skip)
+        .take(limit);
 
-      const pets = await petRepository.find({
-        where: { ownerId: userId },
-        relations: ['type', 'breed', 'personalities'],
-        order: { createdAt: 'DESC' }
-      });
+      if (search) {
+        query.andWhere(`
+        pet.name LIKE :search OR
+        breed.name LIKE :search OR
+        type.name LIKE :search OR
+        owner.fullName LIKE :search
+      `, { search: `%${search}%` });
+      }
+
+      if (typeId) query.andWhere("type.id = :typeId", { typeId });
+      if (breedId) query.andWhere("breed.id = :breedId", { breedId });
+      if (ownerId) query.andWhere("owner.id = :ownerId", { ownerId });
+      if (lookingFor) query.andWhere("pet.lookingFor = :lookingFor", { lookingFor });
+      if (health) query.andWhere("pet.health = :health", { health });
+      if (personalityId) {
+        query.andWhere("personalities.id = :personalityId", { personalityId });
+      }
+
+      if (ageMin) query.andWhere("pet.age >= :ageMin", { ageMin });
+      if (ageMax) query.andWhere("pet.age <= :ageMax", { ageMax });
+
+      const total = await query.getCount();
+      const pets = await query.getMany();
 
       // Get match counts for all user's pets
       const petIds = pets.map(pet => pet.id);
@@ -282,10 +322,15 @@ export class PetController {
       res.json({
         message: 'Pets retrieved successfully',
         pets: petsWithDetails,
-        count: petsWithDetails.length
+        count: petsWithDetails.length,
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
       });
     } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+      console.log("🔥 INTERNAL ERROR --->", error);
+      return res.status(500).json({ success: false, message: "Server error" });
     }
   }
 
@@ -943,6 +988,39 @@ export class PetController {
       res.status(500).json({ message: 'Server error', error });
     }
   }
+  // ---------- Ban pets ----------
+  static async banPets(req: Request, res: Response) {
+    try {
+      const { isBan, petId } = req.body;
+
+      if (typeof isBan !== "boolean") {
+        return res.status(404).json({ message: 'require isBan' });
+      }
+      if (!petId) {
+        return res.status(404).json({ message: 'require petId' });
+      }
+
+      const pet = await petRepository.findOne({
+        where: { id: petId }
+      });
+
+      if (!pet) {
+        return res.status(404).json({ message: 'Pet not found' });
+      }
+
+      pet.isBan = isBan;
+
+      await petRepository.save(pet);
+      res.json({
+        message: 'Profile updated successfully',
+      });
+    } catch (error) {
+      console.error('❌ Toggle pet status error:', error);
+      res.status(500).json({ message: 'Server error', error });
+    }
+  }
+
+
 
   // Enable/Disable pet
   static async togglePetStatus(req: Request, res: Response) {
@@ -1038,7 +1116,7 @@ export class PetController {
   // Delete pet
   static async deletePet(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.id;
+      // const userId = (req as any).user.id;
       const petId = parseInt(req.params.id);
 
       // Validate pet ID
@@ -1047,18 +1125,19 @@ export class PetController {
       }
 
       const pet = await petRepository.findOne({
-        where: { id: petId, ownerId: userId }
+        where: { id: petId }
       });
 
       if (!pet) {
-        return res.status(404).json({ message: 'Pet not found or you do not have permission' });
+        return res.status(404).json({ message: 'Pet not found' });
       }
 
       await petRepository.remove(pet);
 
       res.json({ message: 'Pet deleted successfully' });
     } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+      console.log("error--------->", error)
+      return res.status(500).json({ message: 'Server error', error });
     }
   }
 

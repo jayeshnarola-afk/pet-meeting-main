@@ -58,6 +58,10 @@ export class User {
   @OneToMany(() => Pet, (pet: Pet) => pet.owner)
   pets!: Pet[];
 
+  @Column({ default: false })
+  isBan!: boolean; // 1 for enabled, 0 for disabled
+
+
   @OneToMany(() => ConversationParticipant, (participant) => participant.user)
   conversations!: ConversationParticipant[];
 

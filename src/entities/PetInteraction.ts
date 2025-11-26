@@ -12,14 +12,14 @@ export class PetInteraction {
   @Column()
   likerPetId!: number;
 
-  @ManyToOne(() => Pet)
+  @ManyToOne(() => Pet, { onDelete: "CASCADE" })
   @JoinColumn({ name: 'likerPetId' })
   likerPet!: Pet;
 
   @Column()
   likedPetId!: number;
 
-  @ManyToOne(() => Pet)
+  @ManyToOne(() => Pet, { onDelete: "CASCADE" })
   @JoinColumn({ name: 'likedPetId' })
   likedPet!: Pet;
 

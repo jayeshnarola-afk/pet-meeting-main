@@ -11,7 +11,7 @@ export class Notification {
   @Column()
   userId!: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: 'userId' })
   user!: User;
 
@@ -27,7 +27,7 @@ export class Notification {
   @Column({ nullable: true })
   relatedPetId?: number;
 
-  @ManyToOne(() => Pet, { nullable: true })
+  @ManyToOne(() => Pet, { nullable: true, onDelete: "CASCADE"   })
   @JoinColumn({ name: 'relatedPetId' })
   relatedPet?: Pet;
 

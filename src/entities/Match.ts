@@ -12,16 +12,16 @@ export class Match {
   @Column()
   pet1Id!: number;
 
-  @ManyToOne(() => Pet)
+  @ManyToOne(() => Pet, { onDelete: "CASCADE" })
   @JoinColumn({ name: 'pet1Id' })
   pet1!: Pet;
 
   @Column()
   pet2Id!: number;
 
-  @ManyToOne(() => Pet)
+  @ManyToOne(() => Pet, { onDelete: "CASCADE" })
   @JoinColumn({ name: 'pet2Id' })
-  pet2!: Pet;
+  pet2!: Pet; 
 
   @Column()
   user1Id!: number;

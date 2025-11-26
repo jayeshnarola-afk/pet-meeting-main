@@ -61,6 +61,9 @@ export class Pet {
   @Column({ default: true })
   isEnabled!: boolean; // 1 for enabled, 0 for disabled
 
+  @Column({ default: false })
+  isBan!: boolean; // 1 for enabled, 0 for disabled
+
   @Column('simple-array', { nullable: true })
   photos!: string[]; // array of photo URLs
 

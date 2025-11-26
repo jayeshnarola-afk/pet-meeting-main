@@ -15,8 +15,16 @@ import homeRoutes from './routes/HomeRoutes';
 import petInteractionRoutes from './routes/PetInteractionRoutes';
 import chatRoutes from './routes/ChatRoutes';
 import notificationRoutes from './routes/NotificationRoutes';
+// ---------------------- All Admin Router -------------------
+
+import adminPetRoutes from './routes/admin/PetRoutes';
+import adminUserRoutes from './routes/admin/UserRoutes';
+
+
+
 import { handleSocketEvents } from './socket/socket.io';
 import cors from 'cors';
+import { Admin } from 'typeorm';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -26,16 +34,16 @@ const server = http.createServer(app);
 
 // Initialize Socket.IO with Render.com compatible settings
 const io = new Server(server, {
-    path: '/socket.io/',
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-        credentials: true
-    },
-    transports: ['websocket', 'polling'],
-    allowEIO3: true,
-    pingTimeout: 60000,
-    pingInterval: 25000
+  path: '/socket.io/',
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket', 'polling'],
+  allowEIO3: true,
+  pingTimeout: 60000,
+  pingInterval: 25000
 });
 
 // Handle Socket.IO events
@@ -43,8 +51,8 @@ handleSocketEvents(io);
 
 // CORS
 app.use(cors({
-    origin: "*",
-    credentials: true
+  origin: "*",
+  credentials: true
 }));
 
 app.use(express.json());
@@ -66,9 +74,9 @@ if (!fs.existsSync(uploadsPath)) {
 app.use('/uploads', express.static(uploadsPath, {
   setHeaders: (res, filePath) => {
     // Set proper headers for images
-    if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') || 
-        filePath.endsWith('.png') || filePath.endsWith('.gif') || 
-        filePath.endsWith('.webp')) {
+    if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') ||
+      filePath.endsWith('.png') || filePath.endsWith('.gif') ||
+      filePath.endsWith('.webp')) {
       res.setHeader('Content-Type', 'image/jpeg');
     }
   }
@@ -86,8 +94,19 @@ app.use('/api/pet-interactions', petInteractionRoutes);
 app.use('/api', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+
+
+// -------------------------------- All Admin Router----------------
+
+app.use('/admin/api/user', adminUserRoutes)
+app.use('/admin/api/pets', adminPetRoutes)
+
+
+
+
+
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'PetMeeter API',
     version: '1.0.0',
     endpoints: {
