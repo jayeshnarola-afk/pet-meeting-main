@@ -96,7 +96,7 @@ export class PetController {
       const petTypeId = Number(req.query.petTypeId);
       console.log("petTypeId------>", petTypeId);
       if (!petTypeId) return res.status(404).json({ message: "petTypeId Require" });
-      // Get all personalities
+      // Get all Breeds
       const petType = await petBreedRepository.find({
         where: { typeId: petTypeId },
         order: { name: 'ASC' },
@@ -105,8 +105,8 @@ export class PetController {
 
 
       res.json({
-        message: 'PetType retrieved successfully',
-        personalities: petType.map(p => ({
+        message: 'Breeds retrieved successfully',
+        Breeds: petType.map(p => ({
           id: p.id,
           name: p.name,
           typeId: p.typeId,
@@ -115,7 +115,7 @@ export class PetController {
         }))
       });
     } catch (error) {
-      console.error('❌ Get pet options error:', error);
+      console.error('❌ Get pet Breeds error:', error);
       res.status(500).json({
         message: 'Server error',
         error: error instanceof Error ? error.message : String(error)

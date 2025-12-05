@@ -126,10 +126,13 @@ export class AuthController {
     try {
       const { email, password, fcmToken, deviceType } = req.body;
 
+      if (!email) return res.status(400).json({ message: 'Email is require' })
+
       const user = await userRepository.findOne({ where: { email } });
       if (!user) {
         return res.status(400).json({ message: 'Invalid credentials' });
       }
+      if (user.isBan == true) return res.status(400).json({ message: 'Your profile is Ban' });
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
@@ -231,7 +234,7 @@ export class AuthController {
           debug: process.env.NODE_ENV === 'development' ? { otp, expiresIn: '10 minutes' } : undefined
         });
       } catch (emailError) {
-        
+
         console.error('❌ Email sending failed:', emailError);
         // OTP is still saved, so user can try resending
         res.status(500).json({

@@ -19,6 +19,7 @@ import notificationRoutes from './routes/NotificationRoutes';
 
 import adminPetRoutes from './routes/admin/PetRoutes';
 import adminUserRoutes from './routes/admin/UserRoutes';
+import dashbordRoutes from './routes/admin/dashbordRoutes';
 
 
 
@@ -28,6 +29,8 @@ import { Admin } from 'typeorm';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+
 
 // Create HTTP server
 const server = http.createServer(app);
@@ -100,6 +103,7 @@ app.use('/api/notifications', notificationRoutes);
 
 app.use('/admin/api/user', adminUserRoutes)
 app.use('/admin/api/pets', adminPetRoutes)
+app.use('/admin/api/dashbord', dashbordRoutes)
 
 
 
