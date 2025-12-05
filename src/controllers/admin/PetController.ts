@@ -20,15 +20,14 @@ const userRepository = AppDataSource.getRepository(User);
 export class PetController {
   // Get pet options (types, breeds, personalities) from database
   static async getPetOptions(req: Request, res: Response) {
-    const userId = (req as any).user.id;
 
     try {
       // Get all pet types
       const types = await petTypeRepository.find({
-        where: [
-          { userId: IsNull() },   // common types
-          { userId: userId }      // user types
-        ],
+        // where: [
+        //   { userId: IsNull() },   // common types
+        //   { userId: userId }      // user types
+        // ],
         order: { name: 'ASC' }
       });
 
@@ -38,27 +37,18 @@ export class PetController {
         order: { name: 'ASC' }
       });
 
-      // Get all personalities
-      const personalities = await petPersonalityRepository.find({
-        where: [
-          { userId: IsNull() },   // common types
-          { userId: userId }      // user types
-        ],
-        order: { name: 'ASC' }
-      });
-
       // Create types with their breeds
       const typesWithBreeds = types.map(type => ({
         id: type.id,
         name: type.name,
-        userId: type.userId,
-        isStatic: type.userId ? false : true,
+        // userId: type.userId,
+        // isStatic: type.userId ? false : true,
         breeds: breeds
           .filter(breed => breed.typeId === type.id)
           .map(breed => ({
             id: breed.id,
             name: breed.name,
-            isStatic: breed.userId ? false : true,
+            // isStatic: breed.userId ? false : true,
 
           }))
       }));
@@ -66,11 +56,30 @@ export class PetController {
       res.json({
         message: 'Pet options retrieved successfully',
         types: typesWithBreeds,
-        personalities: personalities.map(p => ({
+      });
+    } catch (error) {
+      console.error('❌ Get pet options error:', error);
+      res.status(500).json({
+        message: 'Server error',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+  static async getpetTypes(req: Request, res: Response) {
+    try {
+      // Get all personalities
+      const petType = await petTypeRepository.find({
+        order: { name: 'ASC' }
+      });
+
+      res.json({
+        message: 'PetType retrieved successfully',
+        petType: petType.map(p => ({
           id: p.id,
           name: p.name,
-          isStatic: p.userId ? false : true,
-
+          description: p.description
+          // isStatic: p.userId ? false : true,
         }))
       });
     } catch (error) {
@@ -82,22 +91,84 @@ export class PetController {
     }
   }
 
+  static async getpetBreed(req: Request, res: Response) {
+    try {
+      const petTypeId = Number(req.query.petTypeId);
+      console.log("petTypeId------>", petTypeId);
+      if (!petTypeId) return res.status(404).json({ message: "petTypeId Require" });
+      // Get all personalities
+      const petType = await petBreedRepository.find({
+        where: { typeId: petTypeId },
+        order: { name: 'ASC' },
+        relations: ['type']
+      });
+
+
+      res.json({
+        message: 'PetType retrieved successfully',
+        personalities: petType.map(p => ({
+          id: p.id,
+          name: p.name,
+          typeId: p.typeId,
+          description: p.description
+          // isStatic: p.userId ? false : true,
+        }))
+      });
+    } catch (error) {
+      console.error('❌ Get pet options error:', error);
+      res.status(500).json({
+        message: 'Server error',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+
+
+
+  static async getpersonalities(req: Request, res: Response) {
+    try {
+      // Get all personalities
+      const personalities = await petPersonalityRepository.find({
+        order: { name: 'ASC' }
+      });
+
+      res.json({
+        message: 'personalities retrieved successfully',
+        personalities: personalities.map(p => ({
+          id: p.id,
+          name: p.name,
+          // isStatic: p.userId ? false : true,
+        }))
+      });
+    } catch (error) {
+      console.error('❌ Get pet options error:', error);
+      res.status(500).json({
+        message: 'Server error',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+
+
+
   static async createPetOption(req: Request, res: Response) {
     const { petTypeName, breed, petTypeId, Personality } = req.body;
-    const userId = (req as any).user.id;
+    // const userId = (req as any).user.id;
     try {
-      const user = await userRepository.findOneBy({ id: userId });
-      if (!user) return res.status(404).json({ message: "User not found" });
+      // const user = await userRepository.findOneBy({ id: userId });
+      // if (!user) return res.status(404).json({ message: "User not found" });
 
       // save petTypeName 
       if (petTypeName) {
-        const checkPettype = await petTypeRepository.findOne({ where: { name: petTypeName, userId: userId } });
+        const checkPettype = await petTypeRepository.findOne({ where: { name: petTypeName } });
         if (checkPettype) {
           return res.status(404).json({ message: "Allready Created  this name" });
         }
         const petType = await petTypeRepository.save({
           name: petTypeName,
-          userId: user.id,
+          // userId: user.id,
         });
         const { id, ...rest } = petType;
         res.json({
@@ -120,7 +191,7 @@ export class PetController {
         const creatBreed = await petBreedRepository.save({
           name: breed,
           typeId: petTypeId,
-          userId: user.id,
+          // userId: user.id,
         });
 
         const { id, ...rest } = creatBreed;
@@ -136,7 +207,7 @@ export class PetController {
       // save Personality
       if (Personality) {
         const exists = await petPersonalityRepository.findOne({
-          where: { name: Personality, userId: userId }
+          where: { name: Personality }
         });
 
         if (exists) {
@@ -144,7 +215,7 @@ export class PetController {
         }
         const creatPersonality = await petPersonalityRepository.save({
           name: Personality,
-          userId: user.id,
+          // userId: user.id,
         });
         const { id, ...rest } = creatPersonality;
         res.json({
@@ -229,6 +300,7 @@ export class PetController {
         lookingFor,
         health,
         ageMin,
+        age,
         ageMax
       } = req.query;
 
@@ -244,14 +316,16 @@ export class PetController {
 
       if (search) {
         query.andWhere(`
-        pet.name LIKE :search OR
-        breed.name LIKE :search OR
-        type.name LIKE :search OR
-        owner.fullName LIKE :search
+        pet.name ILIKE :search OR
+        breed.name ILIKE :search OR
+        pet.lookingFor ILIKE :search OR
+        type.name ILIKE :search OR
+        owner.fullName ILIKE :search
       `, { search: `%${search}%` });
       }
 
       if (typeId) query.andWhere("type.id = :typeId", { typeId });
+      if (age) query.andWhere("pet.age = :age", { age });
       if (breedId) query.andWhere("breed.id = :breedId", { breedId });
       if (ownerId) query.andWhere("owner.id = :ownerId", { ownerId });
       if (lookingFor) query.andWhere("pet.lookingFor = :lookingFor", { lookingFor });

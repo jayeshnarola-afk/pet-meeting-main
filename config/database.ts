@@ -16,9 +16,11 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: process.env.DATABASE_URL || 'postgresql://petmeeter_user:zTpPAp3ogVo444kmk8VmC2lU9BqyFt5h@dpg-d44pv9v5r7bs73b3itr0-a.oregon-postgres.render.com/petmeeter',
+  // url: process.env.DATABASE_URL || 'postgresql://petmeeter_user:zTpPAp3ogVo444kmk8VmC2lU9BqyFt5h@dpg-d44pv9v5r7bs73b3itr0-a.oregon-postgres.render.com:5432/petmeeter',
+  url: "postgresql://postgres:2724@localhost:5432/petmeeter",
   synchronize: true,
   logging: false,
+  ssl: false,
   entities: [
     User,
     Pet,
@@ -35,7 +37,7 @@ export const AppDataSource = new DataSource({
   ],
   migrations: [],
   subscribers: [],
-  ssl: { rejectUnauthorized: false },
+  // ssl: { rejectUnauthorized: false }
 });
 
 

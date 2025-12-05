@@ -7,13 +7,16 @@ const router = Router();
 // Get pet options (public, no auth required)
 // router.get('/optionsSave', PetController.createPetType);
 
+// router.post('petType', PetController.createPetOption);
+
 // All other routes require authentication
 // router.use(authMiddleware);
-
+router.get('/petTypeList', PetController.getpetTypes);
+router.get('/petBreedList', PetController.getpetBreed);
 router.get('/options', PetController.getPetOptions);
+router.get('/personalities', PetController.getpersonalities);
 router.post('/optionsSave', PetController.createPetOption);
 router.delete('/optionsdelete', PetController.deletePetOpation);
-
 
 // Get all  pets  with user
 router.get('/list', PetController.getUserPets);
