@@ -64,6 +64,12 @@ export class User {
 
   @OneToMany(() => ConversationParticipant, (participant) => participant.user)
   conversations!: ConversationParticipant[];
+  @Column({
+    type: 'date',
+    nullable: false,
+    default: () => 'CURRENT_DATE',
+  })
+  created_date!: string;
 
   @CreateDateColumn()
   createdAt!: Date;

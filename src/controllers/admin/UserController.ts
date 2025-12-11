@@ -83,9 +83,17 @@ export class UserController {
           typeName: pet.type?.name,
           breedName: pet.breed?.name,
           personalityNames: pet.personalities?.map(p => p.name) || [],
-          photos: pet.photos ? pet.photos.map(photo =>
-            photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-          ) : [],
+          // photos: pet.photos ? pet.photos.map(photo =>
+          //   photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
+          // ) : [],
+          photos: pet.photos
+            ? pet.photos.map(photo => ({
+              ...photo,
+              url: photo.url.startsWith('http')
+                ? photo.url
+                : `https://pet-meeting.onrender.com${photo.url}`
+            }))
+            : [],
           totalMatches: matchCountMap.get(pet.id) || 0
         })) || [];
 

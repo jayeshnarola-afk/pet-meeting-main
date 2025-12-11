@@ -388,9 +388,16 @@ export class PetInteractionController {
             name: otherPet.name,
             age: otherPet.age,
             gender: otherPet.gender,
-            photos: otherPet.photos ? otherPet.photos.map(photo =>
-              photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-            ) : []
+            // photos: otherPet.photos ? otherPet.photos.map(photo =>
+            //   photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
+            // ) : []
+            photos: otherPet.photos
+              ? otherPet.photos.map(p =>
+                p.url.startsWith('http')
+                  ? p.url
+                  : `https://pet-meeting.onrender.com${p.url}`
+              )
+              : []
           },
           otherUser: {
             id: otherUser.id,
@@ -454,9 +461,17 @@ export class PetInteractionController {
         typeName: pet.type?.name,
         breedName: pet.breed?.name,
         personalityNames: pet.personalities?.map(p => p.name) || [],
-        photos: pet.photos ? pet.photos.map(photo =>
-          photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-        ) : [],
+        // photos: pet.photos ? pet.photos.map(photo =>
+        //   photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
+        // ) : [],
+        photos: pet.photos
+          ? pet.photos.map(photo => ({
+            ...photo,
+            url: photo.url.startsWith('http')
+              ? photo.url
+              : `https://pet-meeting.onrender.com${photo.url}`
+          }))
+          : [],
         ownerName: pet.owner?.fullName,
         ownerLocation: pet.owner?.location,
         ownerProfilePhoto: pet.owner?.profilePhoto ? (

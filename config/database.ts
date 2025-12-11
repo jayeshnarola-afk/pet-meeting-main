@@ -11,6 +11,7 @@ import { Conversation } from '../src/entities/conversation.entities';
 import { ConversationParticipant } from '../src/entities/conversation.participant.entities';
 import { Message } from '../src/entities/message.entity';
 import { DatingMessage } from '../src/entities/message_meetings.entity';
+import { DailyActiveUser } from '../src/entities/activeUser';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -34,6 +35,7 @@ export const AppDataSource = new DataSource({
     ConversationParticipant,
     Message,
     DatingMessage,
+    DailyActiveUser
   ],
   migrations: [],
   subscribers: [],

@@ -3,7 +3,7 @@ import { ErrorResponse, successResponse } from "../helpers/apiResponse";
 import { addConversations, getChatConversations, findOneConversation, messagesOfChat, sendMediaMessage } from "../models/conversation.model";
 
 // Create Conversation
-export const createConversation = async (req: Request, res: Response) => {
+export const    createConversation = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.id;
         const { type, partcipants } = req.body;

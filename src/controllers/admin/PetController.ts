@@ -387,9 +387,17 @@ export class PetController {
         typeName: pet.type?.name,
         breedName: pet.breed?.name,
         personalityNames: pet.personalities?.map(p => p.name) || [],
-        photos: pet.photos ? pet.photos.map(photo =>
-          photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-        ) : [],
+        // photos: pet.photos ? pet.photos.map(photo =>
+        //   photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
+        // ) : [],
+        photos: pet.photos
+          ? pet.photos.map(photo => ({
+            ...photo,
+            url: photo.url.startsWith('http')
+              ? photo.url
+              : `https://pet-meeting.onrender.com${photo.url}`
+          }))
+          : [],
         totalMatches: matchCountMap.get(pet.id) || 0
       }));
 
@@ -612,9 +620,17 @@ export class PetController {
         typeName: pet.type?.name,
         breedName: pet.breed?.name,
         personalityNames: pet.personalities?.map(p => p.name) || [],
-        photos: pet.photos ? pet.photos.map(photo =>
-          photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-        ) : [],
+        // photos: pet.photos ? pet.photos.map(photo =>
+        //   photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
+        // ) : [],
+        photos: pet.photos
+          ? pet.photos.map(photo => ({
+            ...photo,
+            url: photo.url.startsWith('http')
+              ? photo.url
+              : `https://pet-meeting.onrender.com${photo.url}`
+          }))
+          : [],
         ownerName: pet.owner?.fullName,
         ownerLocation: pet.owner?.location,
         ownerProfilePhoto: pet.owner?.profilePhoto ? (
@@ -721,9 +737,18 @@ export class PetController {
         typeName: pet.type?.name,
         breedName: pet.breed?.name,
         personalityNames: pet.personalities?.map(p => p.name) || [],
-        photos: pet.photos ? pet.photos.map(photo =>
-          photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-        ) : [],
+        // photos: pet.photos ? pet.photos.map(photo =>
+        //   photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
+        // ) : [],
+        photos: pet.photos
+          ? pet.photos.map(photo => ({
+            ...photo,
+            url: photo.url.startsWith('http')
+              ? photo.url
+              : `https://pet-meeting.onrender.com${photo.url}`
+          }))
+          : [],
+
         totalMatches: totalMatches
       };
 
@@ -899,18 +924,32 @@ export class PetController {
       }
 
       // Get uploaded pet photos
-      const files = req.files as Express.Multer.File[] | undefined;
-      let petPhotos: string[] = [];
+      // const files = req.files as Express.Multer.File[] | undefined;
+      // let petPhotos: string[] = [];
 
+      // if (files && files.length > 0) {
+      //   // Validate max 3 photos
+      //   if (files.length > 3) {
+      //     return res.status(400).json({
+      //       message: `Maximum 3 photos allowed per pet. You uploaded ${files.length} photos.`
+      //     });
+      //   }
+
+      //   petPhotos = files.map(file => `/uploads/pets/${file.filename}`);
+      // }
+      let petPhotos: { url: string; isBlocked: boolean }[] = [];
+      const files = req.files as Express.Multer.File[] | undefined;
       if (files && files.length > 0) {
-        // Validate max 3 photos
         if (files.length > 3) {
           return res.status(400).json({
-            message: `Maximum 3 photos allowed per pet. You uploaded ${files.length} photos.`
+            message: `Maximum 3 photos allowed per pet. You uploaded ${files.length} photos.`,
           });
         }
 
-        petPhotos = files.map(file => `/uploads/pets/${file.filename}`);
+        petPhotos = files.map(file => ({
+          url: `/uploads/pets/${file.filename}`,
+          isBlocked: false, // default
+        }));
       }
 
       // Create pet
@@ -1007,19 +1046,38 @@ export class PetController {
       }
 
       // Handle file uploads (FormData)
+      // const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      // if (files && files['petPhotos']) {
+      //   const uploadedFiles = files['petPhotos'];
+      //   const photoPaths = uploadedFiles.map(file => `/uploads/pets/${file.filename}`);
+
+      //   // Validate max 3 photos
+      //   if (photoPaths.length > 3) {
+      //     return res.status(400).json({
+      //       message: `Maximum 3 photos allowed per pet. You provided ${photoPaths.length} photos.`
+      //     });
+      //   }
+
+      //   pet.photos = photoPaths;
+      // }
+
       const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+
       if (files && files['petPhotos']) {
         const uploadedFiles = files['petPhotos'];
-        const photoPaths = uploadedFiles.map(file => `/uploads/pets/${file.filename}`);
 
         // Validate max 3 photos
-        if (photoPaths.length > 3) {
+        if (uploadedFiles.length > 3) {
           return res.status(400).json({
-            message: `Maximum 3 photos allowed per pet. You provided ${photoPaths.length} photos.`
+            message: `Maximum 3 photos allowed per pet. You provided ${uploadedFiles.length} photos.`
           });
         }
 
-        pet.photos = photoPaths;
+        // Convert each file → { url, isBlocked }
+        pet.photos = uploadedFiles.map(file => ({
+          url: `/uploads/pets/${file.filename}`,
+          isBlocked: false,  // default value
+        }));
       }
 
       // Update only provided fields
@@ -1048,9 +1106,14 @@ export class PetController {
         typeName: updatedPet?.type?.name,
         breedName: updatedPet?.breed?.name,
         personalityNames: updatedPet?.personalities?.map(p => p.name) || [],
-        photos: updatedPet?.photos?.map(photo =>
-          photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-        ) || []
+        photos: pet.photos
+          ? pet.photos.map(photo => ({
+            ...photo,
+            url: photo.url.startsWith('http')
+              ? photo.url
+              : `https://pet-meeting.onrender.com${photo.url}`
+          }))
+          : [],
       };
 
       res.json({
@@ -1159,9 +1222,14 @@ export class PetController {
         typeName: updatedPet?.type?.name,
         breedName: updatedPet?.breed?.name,
         personalityNames: updatedPet?.personalities?.map(p => p.name) || [],
-        photos: updatedPet?.photos?.map(photo =>
-          photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-        ) || []
+        photos: pet.photos
+          ? pet.photos.map(photo => ({
+            ...photo,
+            url: photo.url.startsWith('http')
+              ? photo.url
+              : `https://pet-meeting.onrender.com${photo.url}`
+          }))
+          : [],
       };
 
       // Map all pets for response
@@ -1170,9 +1238,14 @@ export class PetController {
         typeName: pet.type?.name,
         breedName: pet.breed?.name,
         personalityNames: pet.personalities?.map(p => p.name) || [],
-        photos: pet.photos?.map(photo =>
-          photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-        ) || []
+        photos: pet.photos
+          ? pet.photos.map(photo => ({
+            ...photo,
+            url: photo.url.startsWith('http')
+              ? photo.url
+              : `https://pet-meeting.onrender.com${photo.url}`
+          }))
+          : [],
       }));
 
       res.json({
