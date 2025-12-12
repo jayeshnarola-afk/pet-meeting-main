@@ -40,12 +40,24 @@ export class AuthController {
       }
 
       // Get uploaded profile photo
-      let profilePhotoPath: string | undefined;
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-      if (files && files['profilePhoto']) {
-        profilePhotoPath = `/uploads/profiles/${files['profilePhoto'][0].filename}`;
-      }
+      // let profilePhotoPath: string | undefined;
+      // const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      // if (files && files['profilePhoto']) {
+      //   profilePhotoPath = `/uploads/profiles/${files['profilePhoto'][0].filename}`;
+      // }
 
+      let profilePhotoObj: { url: string; isBlocked: boolean } | null = null;
+
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+
+      if (files && files['profilePhoto']) {
+        const file = files['profilePhoto'][0];
+
+        profilePhotoObj = {
+          url: `/uploads/profiles/${file.filename}`,
+          isBlocked: false
+        };
+      }
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -56,7 +68,7 @@ export class AuthController {
         email,
         password: hashedPassword,
         location,
-        profilePhoto: profilePhotoPath,
+        profilePhoto: profilePhotoObj,
         lat: lat ? parseFloat(lat) : undefined,
         lng: lng ? parseFloat(lng) : undefined,
         fcmToken: fcmToken || undefined,
@@ -89,9 +101,16 @@ export class AuthController {
           email: user.email,
           age: user.age,
           location: user.location,
-          profilePhoto: user.profilePhoto ?
-            (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
-            null,
+          // profilePhoto: user.profilePhoto ?
+          //   (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
+          //   null,
+          profilePhoto: user.profilePhoto
+            ? (
+              user.profilePhoto.url.startsWith('http')
+                ? user.profilePhoto.url
+                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+            )
+            : null,
           lat: user.lat,
           lng: user.lng,
           fcmToken: user.fcmToken,
@@ -179,9 +198,16 @@ export class AuthController {
           email: user.email,
           age: user.age,
           location: user.location,
-          profilePhoto: user.profilePhoto ?
-            (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
-            null,
+          // profilePhoto: user.profilePhoto ?
+          //   (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
+          //   null,
+          profilePhoto: user.profilePhoto
+            ? (
+              user.profilePhoto.url.startsWith('http')
+                ? user.profilePhoto.url
+                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+            )
+            : null,
           lat: user.lat,
           lng: user.lng,
           fcmToken: user.fcmToken,

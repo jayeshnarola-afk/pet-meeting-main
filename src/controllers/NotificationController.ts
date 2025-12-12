@@ -52,35 +52,69 @@ export class NotificationController {
 
         if (notification.relatedPet) {
           // Handle photos - TypeORM simple-array can be string or array
-          let petPhotos: string[] = [];
-          const photos: any = notification.relatedPet.photos;
-          if (photos) {
-            if (Array.isArray(photos)) {
-              petPhotos = photos;
-            } else if (typeof photos === 'string') {
-              // Parse comma-separated string (TypeORM simple-array format)
-              petPhotos = photos.split(',').map((p: string) => p.trim()).filter((p: string) => p.length > 0);
+          // let petPhotos: string[] = [];
+          // const photos: any = notification.relatedPet.photos;
+          // if (photos) {
+          //   if (Array.isArray(photos)) {
+          //     petPhotos = photos;
+          //   } else if (typeof photos === 'string') {
+          //     // Parse comma-separated string (TypeORM simple-array format)
+          //     petPhotos = photos.split(',').map((p: string) => p.trim()).filter((p: string) => p.length > 0);
+          //   }
+          // }
+
+          // relatedPetInfo = {
+          //   id: notification.relatedPet.id,
+          //   name: notification.relatedPet.name,
+          //   photos: petPhotos.map((photo: string) =>
+          //     photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
+          //   )
+          // };
+
+          let petPhotos = notification.relatedPet.photos || [];
+
+          // Convert old string[] → object[]
+          petPhotos = petPhotos.map((photo: any) => {
+            if (typeof photo === "string") {
+              return { url: photo, isBlocked: false };
             }
-          }
+            return photo;
+          });
+
+          // Final URLs
+          const finalPhotos = petPhotos.map((p: any) => {
+            const url = typeof p === "string" ? p : p.url;
+
+            return url.startsWith("http")
+              ? url
+              : `https://pet-meeting.onrender.com${url}`;
+          });
+
 
           relatedPetInfo = {
             id: notification.relatedPet.id,
             name: notification.relatedPet.name,
-            photos: petPhotos.map((photo: string) =>
-              photo.startsWith('http') ? photo : `https://pet-meeting.onrender.com${photo}`
-            )
+            photos: finalPhotos
           };
+
 
           // Get user info from pet owner (for like_sent, match_accepted, match_rejected notifications)
           if (notification.relatedPet.owner) {
             relatedUserInfo = {
               id: notification.relatedPet.owner.id,
               fullName: notification.relatedPet.owner.fullName,
-              profilePhoto: notification.relatedPet.owner.profilePhoto ? (
-                notification.relatedPet.owner.profilePhoto.startsWith('http') 
-                  ? notification.relatedPet.owner.profilePhoto 
-                  : `https://pet-meeting.onrender.com${notification.relatedPet.owner.profilePhoto}`
-              ) : null
+              // profilePhoto: notification.relatedPet.owner.profilePhoto ? (
+              //   notification.relatedPet.owner.profilePhoto.startsWith('http') 
+              //     ? notification.relatedPet.owner.profilePhoto 
+              //     : `https://pet-meeting.onrender.com${notification.relatedPet.owner.profilePhoto}`
+              // ) : null
+              profilePhoto: notification.relatedPet.owner.profilePhoto
+                ? (
+                  notification.relatedPet.owner.profilePhoto.url.startsWith('http')
+                    ? notification.relatedPet.owner.profilePhoto.url
+                    : `https://pet-meeting.onrender.com${notification.relatedPet.owner.profilePhoto.url}`
+                )
+                : null
             };
           }
         }

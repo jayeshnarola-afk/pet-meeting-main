@@ -94,9 +94,13 @@ export class UserController {
           age: user.age,
           email: user.email,
           location: user.location,
-          profilePhoto: user.profilePhoto ?
-            (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
-            null,
+          profilePhoto: user.profilePhoto
+            ? (
+              user.profilePhoto.url.startsWith('http')
+                ? user.profilePhoto.url
+                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+            )
+            : null,
           matchesNotification: user.matchesNotification === 1 ? true : false,
           messageNotification: user.messageNotification === 1 ? true : false,
         },
@@ -157,9 +161,16 @@ export class UserController {
           age: user.age,
           email: user.email,
           location: user.location,
-          profilePhoto: user.profilePhoto ?
-            (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
-            null,
+          // profilePhoto: user.profilePhoto ?
+          //   (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
+          //   null,
+          profilePhoto: user.profilePhoto
+            ? (
+              user.profilePhoto.url.startsWith('http')
+                ? user.profilePhoto.url
+                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+            )
+            : null,
           lat: user.lat,
           lng: user.lng,
           fcmToken: user.fcmToken,
@@ -199,14 +210,32 @@ export class UserController {
       if (fullName !== undefined) user.fullName = fullName;
       if (age !== undefined) user.age = parseInt(age);
       if (location !== undefined) user.location = location;
-      if (profilePhotoPath !== undefined) user.profilePhoto = profilePhotoPath;
+      // if (profilePhotoPath !== undefined) user.profilePhoto = profilePhotoPath;
+      if (profilePhotoPath !== undefined) {
+        user.profilePhoto = {
+          url: profilePhotoPath,
+          isBlocked: false
+        };
+      }
       if (lat !== undefined) user.lat = lat ? parseFloat(lat) : null;
       if (lng !== undefined) user.lng = lng ? parseFloat(lng) : null;
 
       await userRepository.save(user);
 
       // Delete old profile photo if new one is uploaded
-      if (profilePhotoPath && oldProfilePhoto && oldProfilePhoto !== profilePhotoPath) {
+      // if (profilePhotoPath && oldProfilePhoto && oldProfilePhoto !== profilePhotoPath) {
+      //   try {
+      //     const fs = require('fs');
+      //     const path = require('path');
+      //     const oldPhotoPath = path.join(__dirname, '..', '..', oldProfilePhoto);
+      //     if (fs.existsSync(oldPhotoPath)) {
+      //       fs.unlinkSync(oldPhotoPath);
+      //       console.log(`🗑️ Deleted old profile photo: ${oldProfilePhoto}`);
+      //     }
+      //   } catch (deleteError) {
+      //     console.error('❌ Error deleting old profile photo:', deleteError);
+      //   }
+      if (profilePhotoPath && oldProfilePhoto && oldProfilePhoto.url !== profilePhotoPath) {
         try {
           const fs = require('fs');
           const path = require('path');
@@ -228,9 +257,16 @@ export class UserController {
           age: user.age,
           email: user.email,
           location: user.location,
-          profilePhoto: user.profilePhoto ?
-            (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
-            null,
+          // profilePhoto: user.profilePhoto ?
+          //   (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
+          //   null,
+          profilePhoto: user.profilePhoto
+            ? (
+              user.profilePhoto.url.startsWith('http')
+                ? user.profilePhoto.url
+                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+            )
+            : null,
           lat: user.lat,
           lng: user.lng,
           fcmToken: user.fcmToken,

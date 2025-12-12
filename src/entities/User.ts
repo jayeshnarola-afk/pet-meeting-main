@@ -23,8 +23,14 @@ export class User {
   @Column()
   location!: string;
 
-  @Column({ nullable: true })
-  profilePhoto!: string;
+  // @Column({ nullable: true })
+  // profilePhoto!: string;
+
+  @Column('json', { nullable: true })
+  profilePhoto!: {
+    url: string;
+    isBlocked: boolean;
+  } | null;
 
   @Column({ nullable: true })
   otp!: string;

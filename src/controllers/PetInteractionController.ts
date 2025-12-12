@@ -403,9 +403,16 @@ export class PetInteractionController {
             id: otherUser.id,
             fullName: otherUser.fullName,
             location: otherUser.location,
-            profilePhoto: otherUser.profilePhoto ? (
-              otherUser.profilePhoto.startsWith('http') ? otherUser.profilePhoto : `https://pet-meeting.onrender.com${otherUser.profilePhoto}`
-            ) : null
+            // profilePhoto: otherUser.profilePhoto ? (
+            //   otherUser.profilePhoto.startsWith('http') ? otherUser.profilePhoto : `https://pet-meeting.onrender.com${otherUser.profilePhoto}`
+            // ) : null
+            profilePhoto: otherUser.profilePhoto
+              ? (
+                otherUser.profilePhoto.url.startsWith('http')
+                  ? otherUser.profilePhoto.url
+                  : `https://pet-meeting.onrender.com${otherUser.profilePhoto.url}`
+              )
+              : null
           },
           createdAt: match.createdAt
         };
@@ -474,9 +481,16 @@ export class PetInteractionController {
           : [],
         ownerName: pet.owner?.fullName,
         ownerLocation: pet.owner?.location,
-        ownerProfilePhoto: pet.owner?.profilePhoto ? (
-          pet.owner.profilePhoto.startsWith('http') ? pet.owner.profilePhoto : `https://pet-meeting.onrender.com${pet.owner.profilePhoto}`
-        ) : null
+        // ownerProfilePhoto: pet.owner?.profilePhoto ? (
+        //   pet.owner.profilePhoto.startsWith('http') ? pet.owner.profilePhoto : `https://pet-meeting.onrender.com${pet.owner.profilePhoto}`
+        // ) : null
+        ownerProfilePhoto: pet.owner?.profilePhoto
+          ? (
+            pet.owner.profilePhoto.url.startsWith('http')
+              ? pet.owner.profilePhoto.url
+              : `https://pet-meeting.onrender.com${pet.owner.profilePhoto.url}`
+          )
+          : null,
       }));
 
       res.json({

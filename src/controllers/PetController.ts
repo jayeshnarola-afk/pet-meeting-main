@@ -514,9 +514,16 @@ export class PetController {
           : [],
         ownerName: pet.owner?.fullName,
         ownerLocation: pet.owner?.location,
-        ownerProfilePhoto: pet.owner?.profilePhoto ? (
-          pet.owner.profilePhoto.startsWith('http') ? pet.owner.profilePhoto : `https://pet-meeting.onrender.com${pet.owner.profilePhoto}`
-        ) : null,
+        // ownerProfilePhoto: pet.owner?.profilePhoto ? (
+        //   pet.owner.profilePhoto.startsWith('http') ? pet.owner.profilePhoto : `https://pet-meeting.onrender.com${pet.owner.profilePhoto}`
+        // ) : null,
+        ownerProfilePhoto: pet.owner?.profilePhoto
+          ? (
+            pet.owner.profilePhoto.url.startsWith('http')
+              ? pet.owner.profilePhoto.url
+              : `https://pet-meeting.onrender.com${pet.owner.profilePhoto.url}`
+          )
+          : null,
         isAlreadyLike: alreadyLikedMap.has(pet.id) || false
       }));
 
