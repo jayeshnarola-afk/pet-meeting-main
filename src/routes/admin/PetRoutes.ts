@@ -27,7 +27,8 @@ router.post('/banPet', PetController.banPets);
 // Get single pet
 router.get('/:id', PetController.getPetById);
 
-
+// pet image block unblock
+router.post('/blockimage', uploadPetPhotos, PetController.blockPetPhoto);
 
 // ------------- no use  ----------------
 

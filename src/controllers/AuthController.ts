@@ -5,6 +5,8 @@ import { AppDataSource } from '../../config/database';
 import { User } from '../entities/User';
 import { Pet } from '../entities/Pet';
 import { EmailService } from '../services/EmailService';
+import { BASE_IMAGE_URL } from '../../config/constants'
+
 
 const userRepository = AppDataSource.getRepository(User);
 const petRepository = AppDataSource.getRepository(Pet);
@@ -108,7 +110,7 @@ export class AuthController {
             ? (
               user.profilePhoto.url.startsWith('http')
                 ? user.profilePhoto.url
-                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
             )
             : null,
           lat: user.lat,
@@ -205,7 +207,7 @@ export class AuthController {
             ? (
               user.profilePhoto.url.startsWith('http')
                 ? user.profilePhoto.url
-                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
             )
             : null,
           lat: user.lat,

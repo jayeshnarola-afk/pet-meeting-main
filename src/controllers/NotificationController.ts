@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { AppDataSource } from '../../config/database';
 import { Notification } from '../entities/Notification';
 import { Pet } from '../entities/Pet';
+import { BASE_IMAGE_URL } from '../../config/constants'
+
 
 const notificationRepository = AppDataSource.getRepository(Notification);
 const petRepository = AppDataSource.getRepository(Pet);
@@ -87,7 +89,7 @@ export class NotificationController {
 
             return url.startsWith("http")
               ? url
-              : `https://pet-meeting.onrender.com${url}`;
+              : `${BASE_IMAGE_URL}${url}`;
           });
 
 
@@ -112,7 +114,7 @@ export class NotificationController {
                 ? (
                   notification.relatedPet.owner.profilePhoto.url.startsWith('http')
                     ? notification.relatedPet.owner.profilePhoto.url
-                    : `https://pet-meeting.onrender.com${notification.relatedPet.owner.profilePhoto.url}`
+                    : `${BASE_IMAGE_URL}${notification.relatedPet.owner.profilePhoto.url}`
                 )
                 : null
             };

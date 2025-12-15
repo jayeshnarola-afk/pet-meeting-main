@@ -4,7 +4,7 @@ import { AppDataSource } from '../../config/database';
 import { User } from '../entities/User';
 import { Pet } from '../entities/Pet';
 import { Match } from '../entities/Match';
-
+import { BASE_IMAGE_URL } from '../../config/constants'
 const userRepository = AppDataSource.getRepository(User);
 const petRepository = AppDataSource.getRepository(Pet);
 const matchRepository = AppDataSource.getRepository(Match);
@@ -80,7 +80,7 @@ export class UserController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
         totalMatches: matchCountMap.get(pet.id) || 0
@@ -98,7 +98,7 @@ export class UserController {
             ? (
               user.profilePhoto.url.startsWith('http')
                 ? user.profilePhoto.url
-                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
             )
             : null,
           matchesNotification: user.matchesNotification === 1 ? true : false,
@@ -168,7 +168,7 @@ export class UserController {
             ? (
               user.profilePhoto.url.startsWith('http')
                 ? user.profilePhoto.url
-                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
             )
             : null,
           lat: user.lat,
@@ -264,7 +264,7 @@ export class UserController {
             ? (
               user.profilePhoto.url.startsWith('http')
                 ? user.profilePhoto.url
-                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
             )
             : null,
           lat: user.lat,

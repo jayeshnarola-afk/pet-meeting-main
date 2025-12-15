@@ -4,6 +4,7 @@ import { AppDataSource } from '../../../config/database';
 import { User } from '../../entities/User';
 import { Pet } from '../../entities/Pet';
 import { Match } from '../../entities/Match';
+import { BASE_IMAGE_URL } from '../../../config/constants';
 
 const userRepository = AppDataSource.getRepository(User);
 const petRepository = AppDataSource.getRepository(Pet);
@@ -91,15 +92,26 @@ export class UserController {
               ...photo,
               url: photo.url.startsWith('http')
                 ? photo.url
-                : `https://pet-meeting.onrender.com${photo.url}`
+                : `${photo.url}`
             }))
             : [],
           totalMatches: matchCountMap.get(pet.id) || 0
         })) || [];
 
 
+        let formattedProfilePhoto = null;
+
+        if (user.profilePhoto && user.profilePhoto.url) {
+          formattedProfilePhoto = {
+            url: user.profilePhoto.url.startsWith('http')
+              ? user.profilePhoto.url
+              : `${BASE_IMAGE_URL}${user.profilePhoto.url}`,
+            isBlocked: user.profilePhoto.isBlocked
+          };
+        }
         finalUsers.push({
           ...user,
+          profilePhoto: formattedProfilePhoto,
           matchesNotification: user.matchesNotification === 1,
           messageNotification: user.messageNotification === 1,
           pets: petsWithDetails,
@@ -230,7 +242,7 @@ export class UserController {
             ? (
               user.profilePhoto.url.startsWith('http')
                 ? user.profilePhoto.url
-                : `https://pet-meeting.onrender.com${user.profilePhoto.url}`
+                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
             )
             : null,
           lat: user.lat,
@@ -305,6 +317,53 @@ export class UserController {
       res.status(500).json({ message: 'Server error', error });
     }
   }
+
+
+  static async blockOrUnblockProfilePhoto(req: Request, res: Response) {
+    try {
+      // const userId = Number(req.params.id);
+      const { isBlocked, userId } = req.body; // true / false
+
+      if (!userId) {
+        return res.status(404).json({ error: "UserId is requre" });
+      }
+      const userRepo = AppDataSource.getRepository(User);
+
+
+      const user = await userRepo.findOne({
+        where: { id: userId }
+      });
+
+      console.log("user------>", user);
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.profilePhoto) {
+        return res.status(400).json({ error: "User does not have a profile photo" });
+      }
+
+      // Block / Unblock
+      user.profilePhoto.isBlocked = isBlocked;
+
+      await userRepo.save(user);
+
+      return res.status(200).json({
+        message: isBlocked ? "Profile photo blocked" : "Profile photo unblocked",
+        profilePhoto: user.profilePhoto,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: "Server Error", error });
+    }
+  };
+
+
+
+
+
+
+
 
   // Toggle notification status
   static async toggleNotificationStatus(req: Request, res: Response) {

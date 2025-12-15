@@ -14,7 +14,8 @@ router.get('/list', UserController.getProfile);
 router.delete('/:id', UserController.deleteAccount);
 // Ban user profile (JSON)
 router.post('/banUser', UserController.banProfile);
-
+//  profile photo block unblock
+router.post('/blockuserphoto', UserController.blockOrUnblockProfilePhoto);
 
 // ------------- no use  ----------------
 

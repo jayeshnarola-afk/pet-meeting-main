@@ -9,6 +9,8 @@ import { User } from '../entities/User';
 import { Not, In } from 'typeorm';
 import { addConversations } from '../models/conversation.model';
 import { pushNotificationService } from '../services/PushNotificationService';
+import { BASE_IMAGE_URL } from '../../config/constants'
+
 
 const petInteractionRepository = AppDataSource.getRepository(PetInteraction);
 const matchRepository = AppDataSource.getRepository(Match);
@@ -395,7 +397,7 @@ export class PetInteractionController {
               ? otherPet.photos.map(p =>
                 p.url.startsWith('http')
                   ? p.url
-                  : `https://pet-meeting.onrender.com${p.url}`
+                  : `${BASE_IMAGE_URL}${p.url}`
               )
               : []
           },
@@ -410,7 +412,7 @@ export class PetInteractionController {
               ? (
                 otherUser.profilePhoto.url.startsWith('http')
                   ? otherUser.profilePhoto.url
-                  : `https://pet-meeting.onrender.com${otherUser.profilePhoto.url}`
+                  : `${BASE_IMAGE_URL}${otherUser.profilePhoto.url}`
               )
               : null
           },
@@ -476,7 +478,7 @@ export class PetInteractionController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
         ownerName: pet.owner?.fullName,
@@ -488,7 +490,7 @@ export class PetInteractionController {
           ? (
             pet.owner.profilePhoto.url.startsWith('http')
               ? pet.owner.profilePhoto.url
-              : `https://pet-meeting.onrender.com${pet.owner.profilePhoto.url}`
+              : `${BASE_IMAGE_URL}${pet.owner.profilePhoto.url}`
           )
           : null,
       }));

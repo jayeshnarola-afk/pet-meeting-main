@@ -9,6 +9,8 @@ import { Match } from '../entities/Match';
 import { User } from '../entities/User';
 import { Not, In } from 'typeorm';
 import { IsNull } from "typeorm";
+import { BASE_IMAGE_URL } from '../../config/constants'
+
 
 const petRepository = AppDataSource.getRepository(Pet);
 const petTypeRepository = AppDataSource.getRepository(PetType);
@@ -281,7 +283,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
         totalMatches: matchCountMap.get(pet.id) || 0
@@ -509,7 +511,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
         ownerName: pet.owner?.fullName,
@@ -521,7 +523,7 @@ export class PetController {
           ? (
             pet.owner.profilePhoto.url.startsWith('http')
               ? pet.owner.profilePhoto.url
-              : `https://pet-meeting.onrender.com${pet.owner.profilePhoto.url}`
+              : `${BASE_IMAGE_URL}${pet.owner.profilePhoto.url}`
           )
           : null,
         isAlreadyLike: alreadyLikedMap.has(pet.id) || false
@@ -633,7 +635,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
         totalMatches: totalMatches
@@ -999,7 +1001,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
       };
@@ -1082,7 +1084,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
       };
@@ -1098,7 +1100,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
       }));

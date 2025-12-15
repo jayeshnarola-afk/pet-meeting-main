@@ -9,6 +9,7 @@ import { Match } from '../../entities/Match';
 import { User } from '../../entities/User';
 import { Not, In } from 'typeorm';
 import { IsNull } from "typeorm";
+import { BASE_IMAGE_URL } from '../../../config/constants';
 
 const petRepository = AppDataSource.getRepository(Pet);
 const petTypeRepository = AppDataSource.getRepository(PetType);
@@ -395,9 +396,22 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${photo.url}`
           }))
           : [],
+        owner: pet.owner
+          ? {
+            ...pet.owner,
+            profilePhoto: pet.owner.profilePhoto
+              ? {
+                url: pet.owner.profilePhoto.url.startsWith('http')
+                  ? pet.owner.profilePhoto.url
+                  : `${BASE_IMAGE_URL}${pet.owner.profilePhoto.url}`,
+                isBlocked: pet.owner.profilePhoto.isBlocked
+              }
+              : null
+          }
+          : null,
         totalMatches: matchCountMap.get(pet.id) || 0
       }));
 
@@ -628,7 +642,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
         ownerName: pet.owner?.fullName,
@@ -640,7 +654,7 @@ export class PetController {
           ? (
             pet.owner.profilePhoto.url.startsWith('http')
               ? pet.owner.profilePhoto.url
-              : `https://pet-meeting.onrender.com${pet.owner.profilePhoto.url}`
+              : `${BASE_IMAGE_URL}${pet.owner.profilePhoto.url}`
           )
           : null,
         isAlreadyLike: alreadyLikedMap.has(pet.id) || false
@@ -752,7 +766,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
 
@@ -1004,6 +1018,46 @@ export class PetController {
     }
   }
 
+  static async blockPetPhoto(req: Request, res: Response) {
+    try {
+      // const { petId } = req.params;
+      const { photoUrl, block, petId } = req.body;
+
+      if (!photoUrl || block === undefined) {
+        return res.status(400).json({
+          message: "photoUrl And block field Require"
+        });
+      }
+
+      const pet = await petRepository.findOne({ where: { id: parseInt(petId) } });
+
+
+      if (!pet) {
+        return res.status(404).json({ message: "Pet Not Found" });
+      }
+
+      if (!Array.isArray(pet.photos)) {
+        return res.status(400).json({ message: "Pet photos is not array " });
+      }
+
+      // Update photo object
+      pet.photos = pet.photos.map(photo =>
+        photo.url === photoUrl
+          ? { ...photo, isBlocked: block }
+          : photo
+      );
+
+      await petRepository.save(pet);
+
+      return res.json({
+        message: block ? "Photo Block Sucsessfull" : "Photo Unblock Sucsessfull",
+        photos: pet.photos
+      });
+    } catch (error) {
+      console.error("❌ Error in blockPetPhoto:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  };
   // Update pet
   static async updatePet(req: Request, res: Response) {
     try {
@@ -1118,7 +1172,7 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
       };
@@ -1234,11 +1288,10 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
       };
-
       // Map all pets for response
       const allPetsWithDetails = allUserPets.map(pet => ({
         ...pet,
@@ -1250,11 +1303,10 @@ export class PetController {
             ...photo,
             url: photo.url.startsWith('http')
               ? photo.url
-              : `https://pet-meeting.onrender.com${photo.url}`
+              : `${BASE_IMAGE_URL}${photo.url}`
           }))
           : [],
       }));
-
       res.json({
         message: `Pet ${isEnabled ? 'enabled' : 'disabled'} successfully${isEnabled ? ' (other pets disabled)' : ''}`,
         pet: petWithDetails,

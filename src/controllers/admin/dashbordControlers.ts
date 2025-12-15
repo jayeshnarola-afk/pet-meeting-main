@@ -42,6 +42,28 @@ export class dashbordController {
         const last7Str = last7.toISOString().split("T")[0];
 
 
+        // LAST 1 MONTH (30 DAYS)
+        const last30 = new Date(today);
+        last30.setDate(today.getDate() - 29);
+        const last30Str = last30.toISOString().split("T")[0];
+
+        // LAST 3 MONTH (90 DAYS)
+        const last90 = new Date(today);
+        last90.setDate(today.getDate() - 89);
+        const last90Str = last90.toISOString().split("T")[0];
+
+        // LAST 6 MONTH (180 DAYS)
+        const last180 = new Date(today);
+        last180.setDate(today.getDate() - 179);
+        const last180Str = last180.toISOString().split("T")[0];
+
+        // LAST 1 YEAR (365 DAYS)
+        const last365 = new Date(today);
+        last365.setDate(today.getDate() - 364);
+        const last365Str = last365.toISOString().split("T")[0];
+
+
+
         const todayUsers = await userRepo.count({
           where: { created_date: todayStr }
         });
@@ -80,7 +102,35 @@ export class dashbordController {
           });
         }
 
-        return { todayUsers, lastWeekUser };
+        // LAST 1 MONTH (30 DAYS COUNT)
+        const lastMonthUsers = await userRepo.count({
+          where: {
+            created_date: Between(last30Str, todayStr)
+          }
+        });
+
+        // LAST 3 MONTH (90 DAYS COUNT)
+        const last3MonthUsers = await userRepo.count({
+          where: {
+            created_date: Between(last90Str, todayStr)
+          }
+        });
+
+        // LAST 6 MONTH (180 DAYS COUNT)
+        const last6MonthUsers = await userRepo.count({
+          where: {
+            created_date: Between(last180Str, todayStr)
+          }
+        });
+
+        // LAST 1 YEAR (365 DAYS COUNT)
+        const last1YearUsers = await userRepo.count({
+          where: {
+            created_date: Between(last365Str, todayStr)
+          }
+        });
+
+        return { todayUsers, lastWeekUser, lastMonthUsers, last3MonthUsers, last6MonthUsers, last1YearUsers };
       }
       async function getActiveUser() {
         const dailyActiveUserRepo = AppDataSource.getRepository('DailyActiveUser');
@@ -92,6 +142,26 @@ export class dashbordController {
         const last7 = new Date(today);
         last7.setDate(today.getDate() - 6);
         const last7Str = last7.toISOString().split("T")[0];
+
+        // LAST 1 MONTH (30 days)
+        const last30 = new Date(today);
+        last30.setDate(today.getDate() - 29);
+        const last30Str = last30.toISOString().split("T")[0];
+
+        // LAST 3 MONTH (90 days)
+        const last90 = new Date(today);
+        last90.setDate(today.getDate() - 89);
+        const last90Str = last90.toISOString().split("T")[0];
+
+        // LAST 6 MONTH (180 days)
+        const last180 = new Date(today);
+        last180.setDate(today.getDate() - 179);
+        const last180Str = last180.toISOString().split("T")[0];
+
+        // LAST 1 YEAR (365 days)
+        const last365 = new Date(today);
+        last365.setDate(today.getDate() - 364);
+        const last365Str = last365.toISOString().split("T")[0];
 
         // TODAY ACTIVE USERS
         const todayActive = await dailyActiveUserRepo.count({
@@ -126,9 +196,41 @@ export class dashbordController {
           });
         }
 
+        // LAST 1 MONTH TOTAL
+        const lastMonthActive = await dailyActiveUserRepo.count({
+          where: {
+            activity_date: Between(last30Str, todayStr)
+          }
+        });
+
+        // LAST 3 MONTH TOTAL
+        const last3MonthActive = await dailyActiveUserRepo.count({
+          where: {
+            activity_date: Between(last90Str, todayStr)
+          }
+        });
+
+        // LAST 6 MONTH TOTAL
+        const last6MonthActive = await dailyActiveUserRepo.count({
+          where: {
+            activity_date: Between(last180Str, todayStr)
+          }
+        });
+
+        // LAST 1 YEAR TOTAL
+        const last1YearActive = await dailyActiveUserRepo.count({
+          where: {
+            activity_date: Between(last365Str, todayStr)
+          }
+        });
+
         return {
           todayActive,
-          weeklyActive
+          weeklyActive,
+          lastMonthActive,
+          last3MonthActive,
+          last6MonthActive,
+          last1YearActive
         };
       }
 

@@ -1,1 +1,1 @@
-export const BASE_IMAGE_URL = "https://pet-meeting.onrender.com";
+export const BASE_IMAGE_URL = "http://10.1.0.14:4000";
