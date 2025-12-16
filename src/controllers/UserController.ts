@@ -14,16 +14,21 @@ export class UserController {
   static async getProfile(req: Request, res: Response) {
     try {
       const userId = (req as any).user.id; // From auth middleware
+      // const userId = 5; // From auth middleware
+
 
       const user = await userRepository.findOne({
         where: { id: userId },
         relations: ['pets', 'pets.type', 'pets.breed', 'pets.personalities'],
-        select: ['id', 'fullName', 'age', 'email', 'location', 'profilePhoto', 'matchesNotification', 'messageNotification']
+        select: ['id', 'fullName', 'age', 'email', 'location', 'profilePhoto', 'isBan', 'matchesNotification', 'messageNotification']
       });
 
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
+
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
+
 
       // Get match counts for all user's pets
       const petIds = user.pets?.map(pet => pet.id) || [];
@@ -86,6 +91,19 @@ export class UserController {
         totalMatches: matchCountMap.get(pet.id) || 0
       })) || [];
 
+
+      let formattedProfilePhoto = null;
+
+      if (user.profilePhoto && user.profilePhoto.url) {
+        formattedProfilePhoto = {
+          url: user.profilePhoto.url.startsWith('http')
+            ? user.profilePhoto.url
+            : `${BASE_IMAGE_URL}${user.profilePhoto.url}`,
+          isBlocked: user.profilePhoto.isBlocked
+        };
+      }
+
+
       res.json({
         message: 'Profile retrieved successfully',
         user: {
@@ -94,13 +112,7 @@ export class UserController {
           age: user.age,
           email: user.email,
           location: user.location,
-          profilePhoto: user.profilePhoto
-            ? (
-              user.profilePhoto.url.startsWith('http')
-                ? user.profilePhoto.url
-                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
-            )
-            : null,
+          profilePhoto: formattedProfilePhoto,
           matchesNotification: user.matchesNotification === 1 ? true : false,
           messageNotification: user.messageNotification === 1 ? true : false,
         },
@@ -124,6 +136,8 @@ export class UserController {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
+
 
       // Store old profile photo path for deletion
       const oldProfilePhoto = user.profilePhoto;
@@ -195,6 +209,8 @@ export class UserController {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
+
 
       // Store old profile photo path for deletion
       const oldProfilePhoto = user.profilePhoto;
@@ -299,6 +315,8 @@ export class UserController {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
+
 
       // Verify current password
       const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
@@ -332,6 +350,8 @@ export class UserController {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
+
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
 
       // Verify password
       const isPasswordValid = await bcrypt.compare(password, user.password);

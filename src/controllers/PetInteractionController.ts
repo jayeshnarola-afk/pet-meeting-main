@@ -383,6 +383,7 @@ export class PetInteractionController {
         const otherPet = isUser1 ? match.pet2 : match.pet1;
         const otherUser = isUser1 ? match.user2 : match.user1;
 
+        
         return {
           id: match.id,
           otherPet: {

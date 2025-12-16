@@ -306,7 +306,12 @@ export class PetController {
     try {
       const userId = (req as any).user.id;
       const { typeId, breedId, size, personalityIds, age, page = '1', limit = '10' } = req.query;
+      const user = await userRepository.findOne({ where: { id: userId } });
 
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
       // Parse pagination parameters
       const pageNum = Math.max(1, parseInt(page as string) || 1);
       const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 10));
@@ -769,6 +774,9 @@ export class PetController {
           message: 'User not found. Please login again or check your authentication token.'
         });
       }
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
+
+
 
       // Validate required fields
       if (!name || !typeId || !breedId || !age || !gender) {

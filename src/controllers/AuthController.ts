@@ -94,6 +94,19 @@ export class AuthController {
 
       console.log(`✅ User registered successfully: ${email}`);
 
+
+
+      let formattedProfilePhoto = null;
+
+      if (user.profilePhoto && user.profilePhoto.url) {
+        formattedProfilePhoto = {
+          url: user.profilePhoto.url.startsWith('http')
+            ? user.profilePhoto.url
+            : `${BASE_IMAGE_URL}${user.profilePhoto.url}`,
+          isBlocked: user.profilePhoto.isBlocked
+        };
+      }
+
       res.status(201).json({
         message: 'User registered successfully. You can now add your pets!',
         token,
@@ -106,13 +119,7 @@ export class AuthController {
           // profilePhoto: user.profilePhoto ?
           //   (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
           //   null,
-          profilePhoto: user.profilePhoto
-            ? (
-              user.profilePhoto.url.startsWith('http')
-                ? user.profilePhoto.url
-                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
-            )
-            : null,
+          profilePhoto: formattedProfilePhoto,
           lat: user.lat,
           lng: user.lng,
           fcmToken: user.fcmToken,
@@ -153,7 +160,8 @@ export class AuthController {
       if (!user) {
         return res.status(400).json({ message: 'Invalid credentials' });
       }
-      if (user.isBan == true) return res.status(400).json({ message: 'Your profile is Ban' });
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
+
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
@@ -191,6 +199,18 @@ export class AuthController {
         deviceType: user.deviceType
       });
 
+
+      let formattedProfilePhoto = null;
+
+      if (user.profilePhoto && user.profilePhoto.url) {
+        formattedProfilePhoto = {
+          url: user.profilePhoto.url.startsWith('http')
+            ? user.profilePhoto.url
+            : `${BASE_IMAGE_URL}${user.profilePhoto.url}`,
+          isBlocked: user.profilePhoto.isBlocked
+        };
+      }
+
       res.json({
         message: 'Login successful',
         token,
@@ -203,13 +223,7 @@ export class AuthController {
           // profilePhoto: user.profilePhoto ?
           //   (user.profilePhoto.startsWith('http') ? user.profilePhoto : `https://pet-meeting.onrender.com${user.profilePhoto}`) :
           //   null,
-          profilePhoto: user.profilePhoto
-            ? (
-              user.profilePhoto.url.startsWith('http')
-                ? user.profilePhoto.url
-                : `${BASE_IMAGE_URL}${user.profilePhoto.url}`
-            )
-            : null,
+          profilePhoto: formattedProfilePhoto,
           lat: user.lat,
           lng: user.lng,
           fcmToken: user.fcmToken,
@@ -240,6 +254,7 @@ export class AuthController {
         return res.status(400).json({ message: 'User not found with this email' });
       }
 
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
       // Generate 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
@@ -301,6 +316,9 @@ export class AuthController {
       if (!user) {
         return res.status(400).json({ message: 'User not found' });
       }
+
+      if (user.isBan === true) return res.status(401).json({ message: 'Your profile is Block By Admin' });
+
 
       if (!user.otp || !user.otpExpires) {
         return res.status(400).json({

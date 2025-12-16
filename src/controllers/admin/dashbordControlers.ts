@@ -82,8 +82,6 @@ export class dashbordController {
           .orderBy("u.created_date", "ASC")
           .getRawMany();
 
-        console.log(rows);
-
         // FORMAT LAST 7 DAYS (fill 0 if no user)
         const lastWeekUser = [];
         for (let i = 0; i < 7; i++) {
@@ -91,7 +89,6 @@ export class dashbordController {
           d.setDate(last7.getDate() + i);
           const dateStr = d.toISOString().slice(0, 10);
 
-          console.log("dateStr------>", dateStr);
 
           rows.forEach(r => console.log(r.date, r.count));
           const row = rows.find(r => r.date === dateStr);
